@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: sia-licence-checker-ui
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    repo: https://github.com/sw96202/sia-licence-checker-ui
+    branch: main
+    region: oregon
+    envVars:
+      - key: REACT_APP_BACKEND_URL
+        value: https://sia-licence-checker-ui.onrender.com/
