@@ -1,91 +1,65 @@
-/* App.css */
-
-body {
-  background-color: #f4f6f8;
-  font-family: 'Roboto', sans-serif;
-  margin: 0;
-  padding: 0;
-}
-
-.app-container {
-  max-width: 600px;
-  margin: 50px auto;
-  padding: 20px;
-  background: white;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
+.App {
   text-align: center;
 }
 
-header {
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 20vh;
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 20px;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
 }
 
-.logo {
-  max-width: 150px;
+.App-header img {
+  height: 60px;
   margin-bottom: 10px;
 }
 
-h1 {
-  color: #333;
-}
-
-form {
-  margin: 20px 0;
-}
-
-input[type="file"] {
-  display: none;
-}
-
-label {
+.file-input-label {
+  background-color: #61dafb;
+  padding: 10px;
+  border-radius: 5px;
+  cursor: pointer;
   display: inline-block;
-  padding: 10px 20px;
-  background-color: #007bff;
+  margin: 20px;
   color: white;
-  border-radius: 4px;
-  cursor: pointer;
-  margin-bottom: 10px;
 }
 
-button {
-  margin-top: 10px;
-  padding: 10px 20px;
-  font-size: 16px;
-  background-color: #28a745;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
+.file-input-label:hover {
+  background-color: #21a1f1;
 }
 
-button:disabled {
-  background-color: #6c757d;
-}
-
-.preview-image,
-.result-image {
-  margin-top: 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+.image-preview {
   max-width: 100%;
+  height: auto;
 }
 
-.result-container {
+.uploaded-image {
   margin-top: 20px;
-  border: 1px solid #ccc;
-  padding: 20px;
-  border-radius: 8px;
+  max-width: 100%;
+  height: auto;
+  border: 1px solid #ddd;
+  padding: 5px;
 }
 
-.result-container p {
-  font-size: 18px;
-  color: #333;
+table {
+  margin: 20px auto;
+  border-collapse: collapse;
 }
 
-.result-container span {
+td {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+td:first-child {
   font-weight: bold;
 }
