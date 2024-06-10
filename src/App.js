@@ -1,101 +1,67 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import './App.css';
-import LogoMain from './LogoMain.png';
+import Logo from './LogoMain.png';
 
-const App = () => {
-  const [file, setFile] = useState(null);
-  const [imagePreviewUrl, setImagePreviewUrl] = useState(null);
-  const [formData, setFormData] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState(null);
+function App() {
+  const [image, setImage] = useState(null);
+  const [licenseData, setLicenseData] = useState(null);
+  const [error, setError] = useState('');
 
-  const handleFileChange = (e) => {
-    let reader = new FileReader();
-    let file = e.target.files[0];
-
-    reader.onloadend = () => {
-      setFile(file);
-      setImagePreviewUrl(reader.result);
-    }
-
-    reader.readAsDataURL(file);
+  const handleImageUpload = (e) => {
+    setImage(e.target.files[0]);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!file) return;
+    setError('');
+    if (!image) {
+      setError('Please upload an image.');
+      return;
+    }
 
-    setLoading(true);
-    const data = new FormData();
-    data.append('file', file);
+    const formData = new FormData();
+    formData.append('image', image);
 
     try {
-      const res = await axios.post('http://localhost:10000/upload', data);
-      setResult(res.data);
-      setLoading(false);
+      const response = await axios.post('https://your-backend-url/upload', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+
+      setLicenseData(response.data);
     } catch (err) {
+      setError('Failed to upload image or process license data.');
       console.error(err);
-      setLoading(false);
     }
   };
 
   return (
     <div className="App">
       <header className="App-header">
-        <img src={LogoMain} className="App-logo" alt="logo" />
+        <img src={Logo} className="App-logo" alt="logo" />
         <h1>Virtulum SIA Licence Checker</h1>
       </header>
       <main>
         <form onSubmit={handleSubmit}>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleFileChange}
-            style={{ display: 'none' }}
-            id="fileInput"
-          />
-          <label htmlFor="fileInput" className="file-input-label">
-            {imagePreviewUrl ? (
-              <img src={imagePreviewUrl} alt="Preview" className="image-preview" />
-            ) : (
-              'Upload Image'
-            )}
-          </label>
-          {file && <button type="submit">Submit</button>}
+          <input type="file" accept="image/*" onChange={handleImageUpload} />
+          <button type="submit">Submit</button>
         </form>
-        {loading && <p>Loading...</p>}
-        {result && (
+        {error && <p className="error">{error}</p>}
+        {licenseData && (
           <div>
             <h2>Extracted Information</h2>
-            <table>
-              <tbody>
-                <tr>
-                  <td>Name:</td>
-                  <td>{result.name}</td>
-                </tr>
-                <tr>
-                  <td>License Number:</td>
-                  <td>{result.licenseNumber}</td>
-                </tr>
-                <tr>
-                  <td>Expiry Date:</td>
-                  <td>{result.expiryDate}</td>
-                </tr>
-                <tr>
-                  <td>License Status:</td>
-                  <td style={{ color: result.isValidLicence ? 'green' : 'red' }}>
-                    {result.isValidLicence ? 'Valid 👍' : 'Invalid 👎'}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-            <img src={imagePreviewUrl} alt="Uploaded" className="uploaded-image" />
+            <p><strong>Name:</strong> {licenseData.name}</p>
+            <p><strong>License Number:</strong> {licenseData.licenseNumber}</p>
+            <p><strong>Expiry Date:</strong> {licenseData.expiryDate}</p>
+            <p><strong>License Status:</strong> {licenseData.isValidLicence ? 'Valid 👍' : 'Invalid 👎'}</p>
+            {image && <img src={URL.createObjectURL(image)} alt="Uploaded" />}
           </div>
         )}
       </main>
     </div>
   );
-};
+}
 
 export default App;
