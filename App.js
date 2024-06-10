@@ -3,99 +3,64 @@ import axios from 'axios';
 import './App.css';
 import LogoMain from './LogoMain.png';
 
-const App = () => {
+function App() {
   const [file, setFile] = useState(null);
-  const [imagePreviewUrl, setImagePreviewUrl] = useState(null);
-  const [formData, setFormData] = useState(null);
-  const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
+  const [imagePreviewUrl, setImagePreviewUrl] = useState('');
 
-  const handleFileChange = (e) => {
+  const handleFileChange = (event) => {
+    const file = event.target.files[0];
+    setFile(file);
+
+    // Show image preview
     let reader = new FileReader();
-    let file = e.target.files[0];
-
     reader.onloadend = () => {
-      setFile(file);
       setImagePreviewUrl(reader.result);
-    }
-
+    };
     reader.readAsDataURL(file);
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!file) return;
-
-    setLoading(true);
-    const data = new FormData();
-    data.append('file', file);
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    const formData = new FormData();
+    formData.append('file', file);
 
     try {
-      const res = await axios.post('http://localhost:10000/upload', data);
-      setResult(res.data);
-      setLoading(false);
-    } catch (err) {
-      console.error(err);
-      setLoading(false);
+      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/upload`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      setResult(response.data);
+    } catch (error) {
+      console.error('Error uploading file:', error);
     }
   };
 
   return (
     <div className="App">
       <header className="App-header">
-        <img src={LogoMain} className="App-logo" alt="logo" />
+        <img src={LogoMain} alt="Virtulum SIA Licence Checker" />
         <h1>Virtulum SIA Licence Checker</h1>
       </header>
       <main>
         <form onSubmit={handleSubmit}>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleFileChange}
-            style={{ display: 'none' }}
-            id="fileInput"
-          />
-          <label htmlFor="fileInput" className="file-input-label">
-            {imagePreviewUrl ? (
-              <img src={imagePreviewUrl} alt="Preview" className="image-preview" />
-            ) : (
-              'Upload Image'
-            )}
-          </label>
-          {file && <button type="submit">Submit</button>}
+          <input type="file" accept="image/*" onChange={handleFileChange} />
+          <button type="submit">Upload</button>
         </form>
-        {loading && <p>Loading...</p>}
+        {imagePreviewUrl && <img src={imagePreviewUrl} alt="Selected" style={{ marginTop: '20px', maxHeight: '300px' }} />}
         {result && (
-          <div>
+          <div className="Result">
             <h2>Extracted Information</h2>
-            <table>
-              <tbody>
-                <tr>
-                  <td>Name:</td>
-                  <td>{result.name}</td>
-                </tr>
-                <tr>
-                  <td>License Number:</td>
-                  <td>{result.licenseNumber}</td>
-                </tr>
-                <tr>
-                  <td>Expiry Date:</td>
-                  <td>{result.expiryDate}</td>
-                </tr>
-                <tr>
-                  <td>License Status:</td>
-                  <td style={{ color: result.isValidLicence ? 'green' : 'red' }}>
-                    {result.isValidLicence ? 'Valid 👍' : 'Invalid 👎'}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-            <img src={imagePreviewUrl} alt="Uploaded" className="uploaded-image" />
+            <p><strong>Name:</strong> {result.name}</p>
+            <p><strong>License Number:</strong> {result.licenseNumber}</p>
+            <p><strong>Expiry Date:</strong> {result.expiryDate}</p>
+            <p><strong>License Status:</strong> {result.isValidLicence ? <span style={{ color: 'green' }}>Valid <span>&#128077;</span></span> : <span style={{ color: 'red' }}>Invalid <span>&#128078;</span></span>}</p>
           </div>
         )}
       </main>
     </div>
   );
-};
+}
 
 export default App;
