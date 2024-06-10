@@ -1,61 +1,62 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import './App.css';
-import LogoMain from './LogoMain.png';
+import Logo from './LogoMain.png';
 
 function App() {
-  const [file, setFile] = useState(null);
-  const [result, setResult] = useState(null);
-  const [imagePreviewUrl, setImagePreviewUrl] = useState('');
+  const [image, setImage] = useState(null);
+  const [licenseData, setLicenseData] = useState(null);
+  const [error, setError] = useState('');
 
-  const handleFileChange = (event) => {
-    const file = event.target.files[0];
-    setFile(file);
-
-    // Show image preview
-    let reader = new FileReader();
-    reader.onloadend = () => {
-      setImagePreviewUrl(reader.result);
-    };
-    reader.readAsDataURL(file);
+  const handleImageUpload = (e) => {
+    setImage(e.target.files[0]);
   };
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    if (!image) {
+      setError('Please upload an image.');
+      return;
+    }
+
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append('image', image);
 
     try {
-      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/upload`, formData, {
+      const response = await axios.post('https://your-backend-url/upload', formData, {
         headers: {
-          'Content-Type': 'multipart/form-data',
-        },
+          'Content-Type': 'multipart/form-data'
+        }
       });
-      setResult(response.data);
-    } catch (error) {
-      console.error('Error uploading file:', error);
+
+      setLicenseData(response.data);
+    } catch (err) {
+      setError('Failed to upload image or process license data.');
+      console.error(err);
     }
   };
 
   return (
     <div className="App">
       <header className="App-header">
-        <img src={LogoMain} alt="Virtulum SIA Licence Checker" />
+        <img src={Logo} className="App-logo" alt="logo" />
         <h1>Virtulum SIA Licence Checker</h1>
       </header>
       <main>
         <form onSubmit={handleSubmit}>
-          <input type="file" accept="image/*" onChange={handleFileChange} />
-          <button type="submit">Upload</button>
+          <input type="file" accept="image/*" onChange={handleImageUpload} />
+          <button type="submit">Submit</button>
         </form>
-        {imagePreviewUrl && <img src={imagePreviewUrl} alt="Selected" style={{ marginTop: '20px', maxHeight: '300px' }} />}
-        {result && (
-          <div className="Result">
+        {error && <p className="error">{error}</p>}
+        {licenseData && (
+          <div>
             <h2>Extracted Information</h2>
-            <p><strong>Name:</strong> {result.name}</p>
-            <p><strong>License Number:</strong> {result.licenseNumber}</p>
-            <p><strong>Expiry Date:</strong> {result.expiryDate}</p>
-            <p><strong>License Status:</strong> {result.isValidLicence ? <span style={{ color: 'green' }}>Valid <span>&#128077;</span></span> : <span style={{ color: 'red' }}>Invalid <span>&#128078;</span></span>}</p>
+            <p><strong>Name:</strong> {licenseData.name}</p>
+            <p><strong>License Number:</strong> {licenseData.licenseNumber}</p>
+            <p><strong>Expiry Date:</strong> {licenseData.expiryDate}</p>
+            <p><strong>License Status:</strong> {licenseData.isValidLicence ? 'Valid 👍' : 'Invalid 👎'}</p>
+            {image && <img src={URL.createObjectURL(image)} alt="Uploaded" />}
           </div>
         )}
       </main>
