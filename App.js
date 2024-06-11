@@ -60,19 +60,43 @@ function App() {
         {isLoading && <p>Loading...</p>}
         {errorMessage && <p className="error">{errorMessage}</p>}
         {result && (
-          <div>
-            <h2>Result</h2>
-            <p><strong>Name:</strong> {result.name}</p>
-            <p><strong>License Number:</strong> {result.licenceNumber}</p>
-            <p><strong>Expiry Date:</strong> {result.expiryDate}</p>
-            <p><strong>License Status:</strong> 
-              {result.isValidLicence ? (
-                <span style={{ color: 'green' }}>Valid <span>&#128077;</span></span>
-              ) : (
-                <span style={{ color: 'red' }}>Invalid <span>&#128078;</span></span>
-              )}
-            </p>
-            <img src={URL.createObjectURL(selectedFile)} alt="Uploaded" />
+          <div className="result">
+            <table>
+              <tbody>
+                <tr>
+                  <td>Name:</td>
+                  <td>{result.name}</td>
+                </tr>
+                <tr>
+                  <td>License Number:</td>
+                  <td>{result.licenceNumber}</td>
+                </tr>
+                <tr>
+                  <td>Expiry Date:</td>
+                  <td>{result.expiryDate}</td>
+                </tr>
+                <tr>
+                  <td>License Status:</td>
+                  <td>
+                    {result.isValidLicence ? (
+                      <span style={{ color: 'green' }}>
+                        Valid <span role="img" aria-label="thumbs up">👍</span>
+                      </span>
+                    ) : (
+                      <span style={{ color: 'red' }}>
+                        Invalid <span role="img" aria-label="thumbs down">👎</span>
+                      </span>
+                    )}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            {selectedFile && (
+              <div>
+                <h2>Uploaded Image</h2>
+                <img src={URL.createObjectURL(selectedFile)} alt="Uploaded" />
+              </div>
+            )}
           </div>
         )}
       </main>
