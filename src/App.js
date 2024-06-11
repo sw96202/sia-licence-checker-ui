@@ -1,14 +1,21 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import './App.css';
-import logo from './LogoMain.png';
+import LogoMain from './LogoMain.png';
 
 function App() {
   const [selectedFile, setSelectedFile] = useState(null);
   const [result, setResult] = useState(null);
+  const [preview, setPreview] = useState(null);
 
   const handleFileChange = (event) => {
-    setSelectedFile(event.target.files[0]);
+    const file = event.target.files[0];
+    setSelectedFile(file);
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setPreview(reader.result);
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleSubmit = async (event) => {
@@ -19,13 +26,13 @@ function App() {
     }
 
     const formData = new FormData();
-    formData.append('file', selectedFile);
+    formData.append('image', selectedFile);
 
     try {
       const response = await axios.post('https://sia-licence-checker-backend.onrender.com/upload', formData, {
         headers: {
-          'Content-Type': 'multipart/form-data',
-        },
+          'Content-Type': 'multipart/form-data'
+        }
       });
       setResult(response.data);
     } catch (error) {
@@ -37,23 +44,47 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
+        <img src={LogoMain} className="App-logo" alt="logo" />
         <h1>Virtulum SIA Licence Checker</h1>
       </header>
-      <form onSubmit={handleSubmit}>
-        <input type="file" onChange={handleFileChange} accept="image/*" capture="camera" />
-        <button type="submit">Submit</button>
-      </form>
-      {result && (
-        <div className="result">
-          <h2>Result</h2>
-          <p><strong>Name:</strong> {result.name}</p>
-          <p><strong>License Number:</strong> {result.licenseNumber}</p>
-          <p><strong>Expiry Date:</strong> {result.expiryDate}</p>
-          <p><strong>License Status:</strong> {result.isValidLicence ? 'Valid 👍' : 'Invalid 👎'}</p>
-          <img src={URL.createObjectURL(selectedFile)} alt="Uploaded" className="uploaded-image" />
-        </div>
-      )}
+      <main>
+        <form onSubmit={handleSubmit}>
+          <input type="file" accept="image/*" onChange={handleFileChange} />
+          <button type="submit">Upload</button>
+        </form>
+        {preview && <img src={preview} alt="Preview" className="preview" />}
+        {result && (
+          <div>
+            <table>
+              <tbody>
+                <tr>
+                  <td>Name:</td>
+                  <td>{result.name}</td>
+                </tr>
+                <tr>
+                  <td>License Number:</td>
+                  <td>{result.licenseNumber}</td>
+                </tr>
+                <tr>
+                  <td>Expiry Date:</td>
+                  <td>{result.expiryDate}</td>
+                </tr>
+                <tr>
+                  <td>License Status:</td>
+                  <td>
+                    {result.isValidLicence ? (
+                      <span style={{ color: 'green' }}>Valid <span role="img" aria-label="thumbs up">👍</span></span>
+                    ) : (
+                      <span style={{ color: 'red' }}>Invalid <span role="img" aria-label="thumbs down">👎</span></span>
+                    )}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <img src={preview} alt="Uploaded" className="uploaded-image" />
+          </div>
+        )}
+      </main>
     </div>
   );
 }
